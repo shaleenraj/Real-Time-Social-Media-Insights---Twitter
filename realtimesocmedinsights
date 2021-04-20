@@ -1,0 +1,187 @@
+#
+import json
+
+# Load WW_trends and US_trends data into the the given variables respectively
+WW_trends = json.loads(open('datasets/WWTrends.json').read())
+US_trends = json.loads(open('datasets/USTrends.json').read())
+
+# Inspecting data by printing out WW_trends and US_trends variables
+# ... YOUR CODE FOR TASK 1 ...
+print(WW_trends)
+print(US_trends)
+
+
+# In[ ]:
+
+
+get_ipython().run_cell_magic('nose', '', '\n# One or more tests of the student\'s code\n# The @solution should pass the tests\n# The purpose of the tests is to try to catch common errors and\n# to give the student a hint on how to resolve these errors\n\ndef test_pandas_loaded():\n    assert \'json\' in globals(), \\\n    \'Did you import the json module?\'\n    \ndef test_WW_trends_correctly_loaded():\n    correct_ww_trends = json.loads(open(\'datasets/WWTrends.json\').read())\n    assert correct_ww_trends == WW_trends, "The variable WW_trends should contain the data in WWTrends.json."\n\ndef test_US_trends_correctly_loaded():\n    correct_us_trends = json.loads(open(\'datasets/USTrends.json\').read())\n    assert correct_us_trends == US_trends, "The variable WW_trends should contain the data in USTrends.json."')
+
+
+# ## 2. Prettifying the output
+# <p>Our data was hard to read! Luckily, we can resort to the <i>json.dumps()</i> method to have it formatted as a pretty JSON string.</p>
+
+# In[5]:
+
+
+# Pretty-printing the results. First WW and then US trends.
+
+print("WW trends:")
+print(json.dumps(WW_trends,indent=1))
+
+print("\n", "US trends:")
+print(json.dumps(US_trends,indent=1))
+# ... YOUR CODE FOR TASK 2 ...
+
+
+# In[ ]:
+
+
+get_ipython().run_cell_magic('nose', '', '# %%nose needs to be included at the beginning of every @tests cell\n\n# Not sure what to check here\n\n# One or more tests of the students code. \n# The @solution should pass the tests.\n# The purpose of the tests is to try to catch common errors and to \n# give the student a hint on how to resolve these errors.\n\ndef strip_comment_lines(cell_input):\n    """Returns cell input string with comment lines removed."""\n    return \'\\n\'.join(line for line in cell_input.splitlines() if not line.startswith(\'#\'))\n\nlast_input = strip_comment_lines(In[-2])\n\ndef test_info_command():\n    assert \'json.dumps(WW_trends\' in last_input, \\\n        "We expected the json.dumps method with the correct input object."\n    assert \'json.dumps(US_trends\' in last_input, \\\n         "We expected the json.dumps method with the correct input object."')
+
+
+# ## 3.  Finding common trends
+
+# Extracting all the WW trend names from WW_trends
+
+world_trends = set([trend['name']
+                    for trend in WW_trends[0]['trends']])
+
+
+# Extracting all the US trend names from US_trends
+us_trends = set([trend['name'] for trend in US_trends[0]['trends']])
+
+# Getting the intersection of the two sets of trends
+common_trends = world_trends.intersection(us_trends)
+
+# Inspecting the data
+print(world_trends, "\n")
+print(us_trends, "\n")
+print (len(common_trends), "common trends:", common_trends)
+
+
+# In[ ]:
+
+
+get_ipython().run_cell_magic('nose', '', "\n# One or more tests of the students code. \n# The @solution should pass the tests.\n# The purpose of the tests is to try to catch common errors and to \n# give the student a hint on how to resolve these errors.\n\ndef test_ww_trends():\n    correct_world_trends = set([trend['name'] for trend in WW_trends[0]['trends']])\n    assert world_trends == correct_world_trends, \\\n    'The variable world_trends does not have the expected trend names.'\n   \ndef test_us_trends():\n    correct_us_trends = set([trend['name'] for trend in US_trends[0]['trends']])\n    assert us_trends == correct_us_trends, \\\n    'The variable us_trends does not have the expected trend names.'\n\ndef test_common_trends():\n    correct_common_trends = world_trends.intersection(us_trends)\n    assert common_trends == correct_common_trends, \\\n    'The variable common_trends does not have the expected common trend names.'")
+
+
+# ## 4. Exploring the hot trend
+
+# <p>We have found a hot-trend, #WeLoveTheEarth. Now let's see what story it is screaming to tell us! <br>
+# If we query Twitter's search API with this hashtag as query parameter, we get back actual tweets related to it. We have the response from the search API stored in the datasets folder as <i>'WeLoveTheEarth.json'</i>. So let's load this dataset and do a deep dive in this trend.</p>
+
+
+
+# Loading the data
+tweets = json.loads(open('datasets/WeLoveTheEarth.json').read())
+
+# Inspecting some tweets
+tweets[0]
+
+
+# In[ ]:
+
+
+get_ipython().run_cell_magic('nose', '', '# %%nose needs to be included at the beginning of every @tests cell\n\n# One or more tests of the student\'s code\n# The @solution should pass the tests\n# The purpose of the tests is to try to catch common errors and\n# to give the student a hint on how to resolve these errors\n\ndef test_tweets_loaded_correctly():\n    correct_tweets_data = json.loads(open(\'datasets/WeLoveTheEarth.json\').read())\n    assert correct_tweets_data == tweets, "The variable tweets should contain the data in WeLoveTheEarth.json."\n    ')
+
+
+# ## 5. Digging deeper
+
+texts = [tweet['text']
+                 for tweet in tweets ]
+
+# Extracting screen names of users tweeting about #WeLoveTheEarth
+names = [user_mention['screen_name']
+                 for tweet in tweets
+                     for user_mention in tweet['entities']['user_mentions']]
+
+# Extracting all the hashtags being used when talking about this topic
+hashtags = [hashtag['text']
+             for tweet in tweets
+                 for hashtag in tweet['entities']['hashtags']]
+
+# Inspecting the first 10 results
+print (json.dumps(texts[0:10], indent=1),"\n")
+print (json.dumps(names[0:10], indent=1),"\n")
+print (json.dumps(hashtags[0:10], indent=1),"\n")
+
+
+# In[ ]:
+
+
+get_ipython().run_cell_magic('nose', '', "# %%nose needs to be included at the beginning of every @tests cell\n\n# One or more tests of the student's code\n# The @solution should pass the tests\n# The purpose of the tests is to try to catch common errors and\n# to give the student a hint on how to resolve these errors\n\ndef test_extracted_texts():\n    correct_text = [tweet['text'] for tweet in tweets ]\n    assert texts == correct_text, \\\n    'The variable texts does not have the expected text data.'\n   \ndef test_extracted_names():\n    correct_names = [user_mention['screen_name'] \n                         for tweet in tweets \n                             for user_mention in tweet['entities']['user_mentions']]\n    assert correct_names == names, \\\n    'The variable names does not have the expected user names.'\n    \ndef test_extracted_hashtags():\n    correct_hashtags = [hashtag['text'] \n                            for tweet in tweets\n                                 for hashtag in tweet['entities']['hashtags']]\n    assert correct_hashtags == hashtags, \\\n    'The variable hashtags does not have the expected hashtag data.'")
+
+
+# ## 6. Frequency analysis
+
+# In[34]:
+
+
+# Importing modules
+# ... YOUR CODE FOR TASK 6 ...
+from collections import Counter
+# Counting occcurrences/ getting frequency dist of all names and hashtags
+for item in [names, hashtags]:
+    c = Counter(item)
+    # Inspecting the 10 most common items in c
+    print (c.most_common(10), "\n")
+
+
+# In[ ]:
+
+
+get_ipython().run_cell_magic('nose', '', '# %%nose needs to be included at the beginning of every @tests cell\n\n# One or more tests of the student\'s code\n# The @solution should pass the tests\n# The purpose of the tests is to try to catch common errors and\n# to give the student a hint on how to resolve these errors\n\ndef test_counter():\n    for item in [names, hashtags]: correct_counter = Counter(item)  \n    assert c == correct_counter, \\\n    "The variable c does not have the expected values."')
+
+
+# ## 7. Activity around the trend
+
+
+# Extracting useful information from retweets
+retweets = [
+             (tweet['retweet_count'],
+              tweet['retweeted_status']['favorite_count'],
+              tweet['retweeted_status']['user']['followers_count'],
+              tweet['retweeted_status']['user']['screen_name'],
+              tweet['text'])
+
+            for tweet in tweets
+                if 'retweeted_status' in tweet
+           ]
+
+retweets[0:2]
+
+
+# In[ ]:
+
+
+get_ipython().run_cell_magic('nose', '', '# %%nose needs to be included at the beginning of every @tests cell\n\n# One or more tests of the student\'s code\n# The @solution should pass the tests\n# The purpose of the tests is to try to catch common errors and\n# to give the student a hint on how to resolve these errors\n\ndef test_retweets():\n    correct_retweets = [\n             (tweet[\'retweet_count\'], \n              tweet[\'retweeted_status\'][\'favorite_count\'],\n              tweet[\'retweeted_status\'][\'user\'][\'followers_count\'],\n              tweet[\'retweeted_status\'][\'user\'][\'screen_name\'],\n              tweet[\'text\']) \n            \n            for tweet in tweets \n                if \'retweeted_status\' in tweet\n           ]\n    assert correct_retweets == retweets, \\\n    "The retweets variable does not have the expected values. Check the names of the extracted field and their order."')
+
+
+# ## 8. A table that speaks a 1000 words
+
+
+
+# Importing modules
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Visualizing the data in a pretty and insightful format
+df = pd.DataFrame(
+    retweets,
+    columns=['Retweets','Favorites','Followers','ScreenName','Text']).groupby(
+    ['ScreenName','Text','Followers']).sum().sort_values(by=['Followers'], ascending=False)
+
+df.style.background_gradient()
+
+
+
+
+
+# ## 9. Analyzing used languages
+tweets_languages = []
+for tweet in tweets:
+        tweets_languages.append(tweet['lang'])
+
+# Plotting the distribution of languages
+get_ipython().run_line_magic('matplotlib', 'inline')
+plt.hist(tweets_languages)
